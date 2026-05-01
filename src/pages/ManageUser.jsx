@@ -5,21 +5,27 @@ function ManageUser() {
 
   const [users, setUsers] = useState([]);
 
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "https://2400030237-sdp13-backend-production.up.railway.app";
+
   // 🔥 FETCH USERS
   useEffect(() => {
-    fetch("http://localhost:8080/api/admin/users")
+    fetch(`${API_URL}/api/users`)   // ✅ FIXED
       .then(res => res.json())
-      .then(data => setUsers(data))
+      .then(data => {
+        console.log("USERS:", data); // DEBUG
+        setUsers(data);
+      })
       .catch(err => console.log(err));
   }, []);
 
   // 🔥 DELETE USER
   const deleteUser = async (id) => {
-    await fetch(`http://localhost:8080/api/admin/users/${id}`, {
+    await fetch(`${API_URL}/api/users/${id}`, {  // ✅ FIXED
       method: "DELETE"
     });
 
-    // refresh list
     setUsers(users.filter(user => user.id !== id));
   };
 
@@ -40,19 +46,25 @@ function ManageUser() {
         </thead>
 
         <tbody>
-          {users.map(user => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{user.role}</td>
-              <td>
-                <button onClick={() => deleteUser(user.id)}>
-                  Delete
-                </button>
-              </td>
+          {users.length === 0 ? (
+            <tr>
+              <td colSpan="5">No users found</td>
             </tr>
-          ))}
+          ) : (
+            users.map(user => (
+              <tr key={user.id}>
+                <td>{user.id}</td>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.role}</td>
+                <td>
+                  <button onClick={() => deleteUser(user.id)}>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 
