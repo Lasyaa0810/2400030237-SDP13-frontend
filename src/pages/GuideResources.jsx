@@ -8,14 +8,19 @@ function GuideResources() {
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
 
-  // LOAD
+  // ✅ API BASE URL
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
+  // ================= LOAD =================
   const fetchResources = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/guide/resources");
+      const res = await fetch(`${API_URL}/api/guide/resources`);
       const data = await res.json();
       setResources(data);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch Error:", err);
     }
   };
 
@@ -23,7 +28,7 @@ function GuideResources() {
     fetchResources();
   }, []);
 
-  // ADD
+  // ================= ADD =================
   const handleAdd = async () => {
 
     if (!title || !file) {
@@ -37,7 +42,7 @@ function GuideResources() {
     formData.append("file", file);
 
     try {
-      await fetch("http://localhost:8080/api/guide/upload-resource", {
+      await fetch(`${API_URL}/api/guide/upload-resource`, {
         method: "POST",
         body: formData
       });
@@ -49,7 +54,7 @@ function GuideResources() {
       fetchResources();
 
     } catch (err) {
-      console.error(err);
+      console.error("Upload Error:", err);
     }
   };
 
@@ -87,18 +92,24 @@ function GuideResources() {
 
       {/* DISPLAY */}
       <div className="favorites-grid">
-        {resources.map(r => (
-          <div key={r.id} className="favorite-card">
+        {resources.length === 0 ? (
+          <p style={{ textAlign: "center" }}>
+            No resources available
+          </p>
+        ) : (
+          resources.map(r => (
+            <div key={r.id} className="favorite-card">
 
-            <h3>{r.title}</h3>
-            <p>{r.description}</p>
+              <h3>{r.title}</h3>
+              <p>{r.description}</p>
 
-            <a href={r.link} target="_blank" rel="noreferrer">
-              View / Download
-            </a>
+              <a href={r.link} target="_blank" rel="noreferrer">
+                View / Download
+              </a>
 
-          </div>
-        ))}
+            </div>
+          ))
+        )}
       </div>
 
     </div>

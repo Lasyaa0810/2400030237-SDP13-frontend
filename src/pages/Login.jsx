@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 
-// ✅ IMPORT API
+// ✅ USE API
 import { API } from "../api/api";
 
 function Login() {
@@ -30,7 +30,7 @@ function Login() {
     elements.forEach(el => observer.observe(el));
   }, []);
 
-  // ✅ UPDATED LOGIN USING API.JS
+  // ✅ LOGIN USING API
   const handleLogin = async () => {
 
     if (!email || !password || !role) {
@@ -40,55 +40,22 @@ function Login() {
 
     try {
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-          role: role
-        })
+      const res = await API.post("/api/login", {
+        email,
+        password,
+        role
       });
 
-      const text = await res.text();
+      // ⚠️ If your API wrapper returns JSON directly:
+      const user = res;
 
-      if (res.status === 404) {
-        alert(text);
-        return;
-      }
-
-      if (res.status === 401) {
-        alert("Incorrect password");
-        setShowReset(true);
-        return;
-      }
-
-      if (res.status === 400) {
-        alert(text);
-        return;
-      }
-
-      if (res.status === 500) {
-        alert(text || "Server error");
-        return;
-      }
-
-      if (!res.ok) {
-        alert("Login failed");
-        return;
-      }
-
-      const user = JSON.parse(text);
-
-      // ✅ STORE USER DATA
+      // STORE USER
       localStorage.setItem("email", user.email);
       localStorage.setItem("role", user.role);
 
       window.dispatchEvent(new Event("storage"));
 
-      // ✅ ROLE BASED NAVIGATION
+      // ROLE NAVIGATION
       if (user.role === "Admin") {
         navigate("/admin");
       } else if (user.role === "Content Creator") {
@@ -101,11 +68,11 @@ function Login() {
 
     } catch (err) {
       console.log("Login error:", err);
-      alert("Server not reachable");
+      alert("Login failed or server not reachable");
     }
   };
 
-  // ✅ RESET PASSWORD UPDATED
+  // ✅ RESET PASSWORD USING API
   const handleResetPassword = async () => {
 
     if (!email || !newPassword) {
@@ -115,19 +82,12 @@ function Login() {
 
     try {
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reset-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email,
-          password: newPassword
-        })
+      await API.post("/api/reset-password", {
+        email,
+        password: newPassword
       });
 
-      const message = await res.text();
-      alert(message);
+      alert("Password updated successfully");
 
       setShowReset(false);
       setNewPassword("");

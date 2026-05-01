@@ -7,13 +7,18 @@ function GuideInsights() {
   const [monument, setMonument] = useState("");
   const [content, setContent] = useState("");
 
+  // ✅ API BASE URL
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
   const fetchInsights = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/guide/insights");
+      const res = await fetch(`${API_URL}/api/guide/insights`);
       const data = await res.json();
       setInsights(data);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch Error:", err);
     }
   };
 
@@ -25,7 +30,7 @@ function GuideInsights() {
     if (!monument || !content) return;
 
     try {
-      await fetch("http://localhost:8080/api/guide/insights", {
+      await fetch(`${API_URL}/api/guide/insights`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -38,7 +43,7 @@ function GuideInsights() {
       fetchInsights();
 
     } catch (err) {
-      console.error(err);
+      console.error("Add Error:", err);
     }
   };
 

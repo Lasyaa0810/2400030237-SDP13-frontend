@@ -5,14 +5,19 @@ function ManageContent() {
 
   const [contents, setContents] = useState([]);
 
-  // ✅ FETCH SAME DATA AS CREATOR
+  // ✅ API BASE URL
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
+  // ================= FETCH =================
   const fetchContents = async () => {
     try {
-      const res = await fetch("http://localhost:8080/content");
+      const res = await fetch(`${API_URL}/content`);
       const data = await res.json();
       setContents(data);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch Error:", err);
     }
   };
 
@@ -20,13 +25,18 @@ function ManageContent() {
     fetchContents();
   }, []);
 
-  // ✅ DELETE (ADMIN CONTROL)
+  // ================= DELETE =================
   const deleteContent = async (id) => {
-    await fetch(`http://localhost:8080/content/${id}`, {
-      method: "DELETE"
-    });
+    try {
+      await fetch(`${API_URL}/content/${id}`, {
+        method: "DELETE"
+      });
 
-    fetchContents();
+      fetchContents();
+
+    } catch (err) {
+      console.error("Delete Error:", err);
+    }
   };
 
   return (
@@ -34,11 +44,13 @@ function ManageContent() {
 
       <h1>Manage Cultural Content</h1>
 
-      {/* 🔥 DISPLAY SAME DATA */}
+      {/* DISPLAY */}
       <div className="grid">
 
         {contents.length === 0 ? (
-          <p style={{ textAlign: "center" }}>No content available</p>
+          <p style={{ textAlign: "center" }}>
+            No content available
+          </p>
         ) : (
           contents.map(item => {
 
@@ -53,7 +65,6 @@ function ManageContent() {
                 <p><b>Category:</b> {item.category}</p>
                 <p><b>Rating:</b> {item.rating}</p>
 
-                {/* 🔥 SAME IMAGE GRID */}
                 <div className={`card-images count-${images.length}`}>
                   {images.map((img, i) => (
                     <img key={i} src={img} alt="" />
@@ -62,7 +73,6 @@ function ManageContent() {
 
                 <p>{item.description}</p>
 
-                {/* 🔥 ADMIN CONTROL */}
                 <button
                   className="btn-delete"
                   onClick={() => deleteContent(item.id)}

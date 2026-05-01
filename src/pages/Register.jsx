@@ -11,6 +11,11 @@ function Register() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("Cultural Enthusiast");
 
+  // ✅ API BASE URL (IMPORTANT)
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
   useEffect(() => {
     const elements = document.querySelectorAll(".reveal-on-scroll");
 
@@ -23,10 +28,8 @@ function Register() {
     elements.forEach(el => observer.observe(el));
   }, []);
 
-  // ✅ FIXED REGISTER FUNCTION (SAFE FOR RAILWAY)
+  // ✅ CLEAN REGISTER FUNCTION
   const handleRegister = async () => {
-
-    console.log("BUTTON CLICKED");
 
     if (!name || !email || !password) {
       alert("Please fill all fields");
@@ -34,9 +37,8 @@ function Register() {
     }
 
     try {
-      console.log("Sending request...");
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/register`, {
+      const res = await fetch(`${API_URL}/api/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -51,27 +53,14 @@ function Register() {
 
       const text = await res.text();
 
-      // ❌ Handle backend errors safely
+      // ✅ USE HTTP STATUS (BEST PRACTICE)
       if (!res.ok) {
         alert(text || "Registration failed");
         return;
       }
 
-      // ✅ Safe JSON parsing
-      let data = null;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        alert("Invalid server response");
-        return;
-      }
-
-      if (data && (data.id || data.email)) {
-  alert("Account created successfully!");
-  navigate("/login");
-} else {
-  alert("Registration failed");
-}
+      alert("Account created successfully!");
+      navigate("/login");
 
     } catch (err) {
       console.log("ERROR:", err);

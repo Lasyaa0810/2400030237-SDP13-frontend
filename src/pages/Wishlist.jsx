@@ -8,50 +8,66 @@ function Wishlist() {
 
   const email = localStorage.getItem("email");
 
-  // LOAD DATA
+  // ✅ API BASE URL
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
+  // ================= LOAD =================
   const loadData = () => {
-    fetch(`http://localhost:8080/api/userdata/${email}`)
+    fetch(`${API_URL}/api/userdata/${email}`)
       .then(res => res.json())
       .then(data => {
         const filtered = data.filter(d => d.wishlist);
         setWishlist(filtered);
-      });
+      })
+      .catch(err => console.log("Load Error:", err));
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (email) loadData();
+  }, [email]);
 
-  // ADD
+  // ================= ADD =================
   const addItem = async () => {
     if (!item) return;
 
-    await fetch("http://localhost:8080/api/userdata/wishlist", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email,
-        wishlist: item
-      })
-    });
+    try {
+      await fetch(`${API_URL}/api/userdata/wishlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          wishlist: item
+        })
+      });
 
-    setItem("");
-    loadData();
+      setItem("");
+      loadData();
+
+    } catch (err) {
+      console.log("Add Error:", err);
+    }
   };
 
-  // DELETE
+  // ================= DELETE =================
   const deleteItem = async (id) => {
 
     const confirmDelete = window.confirm("Delete this item?");
     if (!confirmDelete) return;
 
-    await fetch(`http://localhost:8080/api/userdata/wishlist/${id}`, {
-      method: "DELETE"
-    });
+    try {
+      await fetch(`${API_URL}/api/userdata/wishlist/${id}`, {
+        method: "DELETE"
+      });
 
-    setWishlist(wishlist.filter(w => w.id !== id));
+      setWishlist(wishlist.filter(w => w.id !== id));
+
+    } catch (err) {
+      console.log("Delete Error:", err);
+    }
   };
 
   return (
@@ -74,22 +90,28 @@ function Wishlist() {
 
       {/* GRID */}
       <div className="wishlist-grid">
-        {wishlist.map((w) => (
-          <div key={w.id} className="wishlist-card">
+        {wishlist.length === 0 ? (
+          <p style={{ textAlign: "center" }}>
+            No wishlist items yet
+          </p>
+        ) : (
+          wishlist.map((w) => (
+            <div key={w.id} className="wishlist-card">
 
-            <h3>{w.wishlist}</h3>
+              <h3>{w.wishlist}</h3>
 
-            <div className="btn-group">
-              <button
-                className="btn-primary"
-                onClick={() => deleteItem(w.id)}
-              >
-                Delete
-              </button>
+              <div className="btn-group">
+                <button
+                  className="btn-primary"
+                  onClick={() => deleteItem(w.id)}
+                >
+                  Delete
+                </button>
+              </div>
+
             </div>
-
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
     </div>

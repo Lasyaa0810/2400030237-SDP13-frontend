@@ -5,10 +5,15 @@ function ManageDiscussions() {
 
   const [posts, setPosts] = useState([]);
 
-  // ✅ FETCH FROM BACKEND
+  // ✅ API BASE URL
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
+  // ================= FETCH =================
   const fetchDiscussions = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/discussions");
+      const res = await fetch(`${API_URL}/api/discussions`);
       const data = await res.json();
       console.log("DATA:", data);
       setPosts(data);
@@ -21,10 +26,10 @@ function ManageDiscussions() {
     fetchDiscussions();
   }, []);
 
-  // ✅ DELETE POST
+  // ================= DELETE =================
   const deletePost = async (id) => {
     try {
-      await fetch(`http://localhost:8080/api/discussions/${id}`, {
+      await fetch(`${API_URL}/api/discussions/${id}`, {
         method: "DELETE"
       });
 
@@ -35,7 +40,7 @@ function ManageDiscussions() {
     }
   };
 
-  // ✅ TOGGLE RESOLVED STATUS
+  // ================= TOGGLE STATUS =================
   const toggleResolved = async (post) => {
     try {
       const updatedPost = {
@@ -43,7 +48,7 @@ function ManageDiscussions() {
         resolved: !post.resolved
       };
 
-      await fetch(`http://localhost:8080/api/discussions/${post.id}`, {
+      await fetch(`${API_URL}/api/discussions/${post.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"

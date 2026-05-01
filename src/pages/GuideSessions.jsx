@@ -7,13 +7,19 @@ function GuideSessions() {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
 
+  // ✅ API BASE URL
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
+  // ================= FETCH =================
   const fetchSessions = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/guide/sessions");
+      const res = await fetch(`${API_URL}/api/guide/sessions`);
       const data = await res.json();
       setSessions(data);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch Error:", err);
     }
   };
 
@@ -21,11 +27,12 @@ function GuideSessions() {
     fetchSessions();
   }, []);
 
+  // ================= ADD =================
   const addSession = async () => {
     if (!title || !date) return;
 
     try {
-      await fetch("http://localhost:8080/api/guide/sessions", {
+      await fetch(`${API_URL}/api/guide/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -38,7 +45,7 @@ function GuideSessions() {
       fetchSessions();
 
     } catch (err) {
-      console.error(err);
+      console.error("Add Error:", err);
     }
   };
 
@@ -65,12 +72,18 @@ function GuideSessions() {
         </button>
       </div>
 
-      {sessions.map(session => (
-        <div key={session.id} className="card">
-          <h3>{session.title}</h3>
-          <p>Date: {session.date}</p>
+      {sessions.length === 0 ? (
+        <div className="card">
+          <p>No sessions scheduled</p>
         </div>
-      ))}
+      ) : (
+        sessions.map(session => (
+          <div key={session.id} className="card">
+            <h3>{session.title}</h3>
+            <p>Date: {session.date}</p>
+          </div>
+        ))
+      )}
 
     </div>
   );

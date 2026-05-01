@@ -19,11 +19,20 @@ function CreatorContent() {
 
   const [imagePreview, setImagePreview] = useState([]);
 
+  // ✅ API BASE URL (IMPORTANT)
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
   // ================= FETCH =================
   const fetchData = async () => {
-    const res = await fetch("http://localhost:8080/content");
-    const data = await res.json();
-    setItems(data);
+    try {
+      const res = await fetch(`${API_URL}/content`);
+      const data = await res.json();
+      setItems(data);
+    } catch (err) {
+      console.error("Fetch Error:", err);
+    }
   };
 
   useEffect(() => {
@@ -40,35 +49,43 @@ function CreatorContent() {
 
     const uploadedUrls = [];
 
-    for (let i = 0; i < files.length; i++) {
+    try {
+      for (let i = 0; i < files.length; i++) {
 
-      const formDataUpload = new FormData();
-      formDataUpload.append("file", files[i]);
+        const formDataUpload = new FormData();
+        formDataUpload.append("file", files[i]);
 
-      const res = await fetch("http://localhost:8080/content/upload", {
-        method: "POST",
-        body: formDataUpload
-      });
+        const res = await fetch(`${API_URL}/content/upload`, {
+          method: "POST",
+          body: formDataUpload
+        });
 
-      const url = await res.text();
-      uploadedUrls.push(url);
+        const url = await res.text();
+        uploadedUrls.push(url);
+      }
+
+      setImagePreview(uploadedUrls);
+
+      setFormData(prev => ({
+        ...prev,
+        image: uploadedUrls.join(",")
+      }));
+
+    } catch (err) {
+      console.error("Upload Error:", err);
     }
-
-    setImagePreview(uploadedUrls);
-
-    setFormData(prev => ({
-      ...prev,
-      image: uploadedUrls.join(",")
-    }));
   };
 
   // ================= DELETE =================
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:8080/content/${id}`, {
-      method: "DELETE"
-    });
-
-    fetchData();
+    try {
+      await fetch(`${API_URL}/content/${id}`, {
+        method: "DELETE"
+      });
+      fetchData();
+    } catch (err) {
+      console.error("Delete Error:", err);
+    }
   };
 
   // ================= EDIT =================
@@ -106,8 +123,8 @@ function CreatorContent() {
     try {
 
       const url = editingId
-        ? `http://localhost:8080/content/${editingId}`
-        : "http://localhost:8080/content";
+        ? `${API_URL}/content/${editingId}`
+        : `${API_URL}/content`;
 
       const method = editingId ? "PUT" : "POST";
 
@@ -140,7 +157,7 @@ function CreatorContent() {
       fetchData();
 
     } catch (err) {
-      console.error(err);
+      console.error("Submit Error:", err);
     }
   };
 
@@ -220,7 +237,6 @@ function CreatorContent() {
               <p><b>Category:</b> {item.category}</p>
               <p><b>Rating:</b> {item.rating}</p>
 
-              {/* 🔥 INSTAGRAM GRID */}
               <div className={`card-images count-${images.length}`}>
                 {images.map((img, i) => (
                   <img key={i} src={img} alt="" />
@@ -229,7 +245,6 @@ function CreatorContent() {
 
               <p>{item.description}</p>
 
-              {/* 🔥 PREMIUM BUTTONS */}
               <div className="action-buttons">
                 <button className="btn-edit" onClick={() => handleEdit(item)}>
                   Edit

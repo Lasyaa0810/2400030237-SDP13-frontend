@@ -10,19 +10,25 @@ function Favorites() {
 
   const email = localStorage.getItem("email");
 
+  // ✅ API BASE URL
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
   // LOAD DATA
   const loadData = () => {
-    fetch(`http://localhost:8080/api/userdata/${email}`)
+    fetch(`${API_URL}/api/userdata/${email}`)
       .then(res => res.json())
       .then(data => {
         const filtered = data.filter(d => d.favoritePlace);
         setFavorites(filtered);
-      });
+      })
+      .catch(err => console.log("Load Error:", err));
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (email) loadData();
+  }, [email]);
 
   // ADD / UPDATE
   const handleSubmit = async () => {
@@ -43,8 +49,8 @@ function Favorites() {
     try {
 
       const url = editId
-        ? `http://localhost:8080/api/userdata/update/${editId}`
-        : "http://localhost:8080/api/userdata/save";
+        ? `${API_URL}/api/userdata/update/${editId}`
+        : `${API_URL}/api/userdata/save`;
 
       const method = editId ? "PUT" : "POST";
 
@@ -59,18 +65,22 @@ function Favorites() {
       setEditId(null);
 
     } catch (err) {
-      console.log(err);
+      console.log("Submit Error:", err);
       alert("Error");
     }
   };
 
   // DELETE
   const deleteFavorite = async (id) => {
-    await fetch(`http://localhost:8080/api/userdata/delete/${id}`, {
-      method: "DELETE"
-    });
+    try {
+      await fetch(`${API_URL}/api/userdata/delete/${id}`, {
+        method: "DELETE"
+      });
 
-    setFavorites(favorites.filter(f => f.id !== id));
+      setFavorites(favorites.filter(f => f.id !== id));
+    } catch (err) {
+      console.log("Delete Error:", err);
+    }
   };
 
   // EDIT
@@ -105,26 +115,24 @@ function Favorites() {
 
       </div>
 
-      {/* ✅ GRID DISPLAY FIXED */}
+      {/* GRID */}
       <div className="favorites-grid">
         {favorites.map((f) => (
           <div key={f.id} className="favorite-card">
 
-            {/* IMAGE */}
             <div className="image-container">
               <img
                 src={f.favoriteImage}
                 alt={f.favoritePlace}
                 onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
+                  e.target.src =
+                    "https://via.placeholder.com/300x200?text=No+Image";
                 }}
               />
             </div>
 
-            {/* TITLE */}
             <h3>{f.favoritePlace}</h3>
 
-            {/* ✅ BUTTONS FIXED */}
             <div className="btn-group">
               <button
                 className="btn-primary"

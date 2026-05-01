@@ -11,10 +11,29 @@ function Achievements() {
 
   const email = localStorage.getItem("email");
 
+  // ✅ API BASE URL (works for both local + Railway)
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
   useEffect(() => {
-    fetch(`http://localhost:8080/api/userdata/${email}`)
-      .then(res => res.json())
+
+    // ❗ safety check
+    if (!email) {
+      console.log("No email found in localStorage");
+      return;
+    }
+
+    fetch(`${API_URL}/api/userdata/${email}`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        return res.json();
+      })
       .then(data => {
+
+        console.log("USER DATA:", data); // 🔍 debug
 
         setStats({
           visits: data.filter(d => d.place).length,
@@ -22,8 +41,12 @@ function Achievements() {
           wishlist: data.filter(d => d.wishlist).length
         });
 
+      })
+      .catch(err => {
+        console.log("ERROR:", err);
       });
-  }, []);
+
+  }, [email]);
 
   return (
     <div className="page-container">

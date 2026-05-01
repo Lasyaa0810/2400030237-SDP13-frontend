@@ -15,26 +15,24 @@ function Admin() {
     discussions: 0
   });
 
-  // ✅ STORE USERS
   const [users, setUsers] = useState([]);
 
-  // ✅ FETCH STATS (UPDATED - NO LOCALHOST)
+  // ✅ FETCH STATS (FIXED)
   const fetchStats = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/stats`);
-      const data = await res.json();
+      const data = await API.get("/api/admin/stats");
       setStats(data);
     } catch (err) {
       console.error("Error fetching stats:", err);
     }
   };
 
-  // ✅ FETCH USERS (YOUR REQUIRED CODE ADDED)
+  // ✅ FETCH USERS (FIXED)
   useEffect(() => {
     API.get("/api/users")
-      .then(res => {
-        console.log("Users:", res);
-        setUsers(res); // optional storage
+      .then(data => {
+        console.log("Users:", data);
+        setUsers(data); // ✅ FIXED
       })
       .catch(err => console.error(err));
   }, []);
@@ -53,11 +51,9 @@ function Admin() {
 
       {/* STATS */}
       <div style={premiumGrid}>
-
         <StatCard title="Total Users" value={stats.users} />
         <StatCard title="Cultural Content" value={stats.contents} />
         <StatCard title="Total Discussions" value={stats.discussions} />
-
       </div>
 
       {/* ACTIONS */}

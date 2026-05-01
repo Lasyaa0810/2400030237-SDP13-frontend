@@ -8,6 +8,11 @@ function Profile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ API BASE URL
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
   useEffect(() => {
     const email = localStorage.getItem("email");
 
@@ -16,7 +21,7 @@ function Profile() {
       return;
     }
 
-    fetch("http://localhost:8080/api/users")
+    fetch(`${API_URL}/api/users`)
       .then(res => {
         if (!res.ok) {
           throw new Error("Failed to fetch users");
@@ -51,7 +56,6 @@ function Profile() {
     navigate("/");
   };
 
-  // ✅ LOADING SCREEN (NO BLANK)
   if (loading) {
     return (
       <div className="page-container">
@@ -62,7 +66,6 @@ function Profile() {
     );
   }
 
-  // ✅ USER NOT FOUND (NO BLANK)
   if (!user) {
     return (
       <div className="page-container">
@@ -96,7 +99,6 @@ function Profile() {
         }}
       >
 
-        {/* PROFILE ICON */}
         <div style={{
           width: "140px",
           height: "140px",
@@ -112,7 +114,6 @@ function Profile() {
           {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
         </div>
 
-        {/* USER DETAILS */}
         <h2>Welcome, {user.name || "User"}</h2>
 
         <p style={{ marginTop: "20px" }}>
@@ -135,7 +136,6 @@ function Profile() {
           {user.role}
         </div>
 
-        {/* CULTURAL ENTHUSIAST DASHBOARD */}
         {user.role && user.role.toLowerCase().includes("cultural") && (
           <div style={{ marginTop: "50px" }}>
 
@@ -150,31 +150,19 @@ function Profile() {
               gap: "15px"
             }}>
 
-              <button
-                className="btn-primary"
-                onClick={() => navigate("/my-journey")}
-              >
+              <button className="btn-primary" onClick={() => navigate("/my-journey")}>
                 My Journey
               </button>
 
-              <button
-                className="btn-primary"
-                onClick={() => navigate("/favorites")}
-              >
+              <button className="btn-primary" onClick={() => navigate("/favorites")}>
                 Favorites
               </button>
 
-              <button
-                className="btn-primary"
-                onClick={() => navigate("/wishlist")}
-              >
+              <button className="btn-primary" onClick={() => navigate("/wishlist")}>
                 Wishlist
               </button>
 
-              <button
-                className="btn-primary"
-                onClick={() => navigate("/achievements")}
-              >
+              <button className="btn-primary" onClick={() => navigate("/achievements")}>
                 Achievements
               </button>
 
@@ -183,7 +171,6 @@ function Profile() {
           </div>
         )}
 
-        {/* ACTION BUTTONS */}
         <div style={{ marginTop: "50px" }}>
 
           <button

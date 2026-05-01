@@ -10,16 +10,21 @@ function GuideProfile() {
     bio: ""
   });
 
+  // ✅ API BASE URL
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
   const fetchProfile = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/guide/profile");
+      const res = await fetch(`${API_URL}/api/guide/profile`);
       const data = await res.json();
 
       if (data.length > 0) {
         setProfile(data[0]); // take first profile
       }
     } catch (err) {
-      console.error(err);
+      console.error("Fetch Error:", err);
     }
   };
 
@@ -31,7 +36,7 @@ function GuideProfile() {
     if (!profile.name || !profile.specialization) return;
 
     try {
-      await fetch("http://localhost:8080/api/guide/profile", {
+      await fetch(`${API_URL}/api/guide/profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -42,7 +47,7 @@ function GuideProfile() {
       alert("Profile Saved");
 
     } catch (err) {
-      console.error(err);
+      console.error("Save Error:", err);
     }
   };
 

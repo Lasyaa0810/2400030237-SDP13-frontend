@@ -6,14 +6,19 @@ function GuideAnswerQuestions() {
   const [posts, setPosts] = useState([]);
   const [replyText, setReplyText] = useState({});
 
+  // ✅ API BASE URL
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080";
+
   // ✅ FETCH FROM BACKEND
   const loadDiscussions = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/guide/questions");
+      const res = await fetch(`${API_URL}/api/guide/questions`);
       const data = await res.json();
       setPosts(data);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch Error:", err);
     }
   };
 
@@ -26,19 +31,24 @@ function GuideAnswerQuestions() {
 
     if (!replyText[id]) return;
 
-    await fetch(`http://localhost:8080/api/guide/reply/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        guideReply: replyText[id],
-        answeredByGuide: true
-      })
-    });
+    try {
+      await fetch(`${API_URL}/api/guide/reply/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          guideReply: replyText[id],
+          answeredByGuide: true
+        })
+      });
 
-    setReplyText({ ...replyText, [id]: "" });
-    loadDiscussions();
+      setReplyText({ ...replyText, [id]: "" });
+      loadDiscussions();
+
+    } catch (err) {
+      console.error("Reply Error:", err);
+    }
   };
 
   return (
